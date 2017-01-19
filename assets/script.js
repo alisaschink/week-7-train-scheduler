@@ -6,7 +6,8 @@ var dataRef = firebase.database();
     var frequency = "";
 
     // capture button click
-    $("#add-train").on("click", function() {
+    $("#add-train").on("click", function(event) {
+      event.preventDefault();
       name = $("#name-input").val().trim();
       destination = $("#destination-input").val().trim();
       time = $("#time-input").val().trim();
@@ -19,8 +20,7 @@ var dataRef = firebase.database();
         frequency: frequency,
         dateAdded: firebase.database.ServerValue.TIMESTAMP
       });
-      // don't refresh the page
-      return false;
+      
     });
 
 
@@ -33,10 +33,10 @@ var dataRef = firebase.database();
       console.log(childSnapshot.val().frequency);
 
       // full list of items to the well
-      $("#full-train-list").append("<div class='well'><span id='name'> " + childSnapshot.val().name +
-        " </span><span id='desination'> " + childSnapshot.val().destination +
-        " </span><span id='time'> " + childSnapshot.val().time +
-        " </span><span id='frequency'> " + childSnapshot.val().frequency + " </span></div>");
+      $("#table-body").append("<tr class='table-row'><td class='table-name'> " + childSnapshot.val().name +
+        " </td><td class='table-desination'> " + childSnapshot.val().destination +
+        " </td><td class='table-time'> " + childSnapshot.val().time +
+        " </td><td class='table-frequency'> " + childSnapshot.val().frequency + " </td></tr>");
 
     // handle the errors
     }, function(errorObject) {

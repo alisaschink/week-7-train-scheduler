@@ -10,6 +10,9 @@
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
+    <!--Link to stylesheet-->
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
+    
     <!-- Link to Firebase -->
     <script src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js"></script>
 
@@ -37,6 +40,18 @@
             </div>
             <div class="panel-body">
                 <div id="full-train-list">
+                  <table class="table">
+                    <thead id="column-headings">
+                      <tr>
+                        <td> Train Name </td>
+                        <td> Destination </td>
+                        <td> Frequency (min) </td>
+                        <td> Next Arrival </td>
+                        <td> Minutes Away </td>
+                      </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                  </table>
                 </div>
             </div>
           </div>
