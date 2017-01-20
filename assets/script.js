@@ -1,5 +1,6 @@
 var dataRef = firebase.database();
     // initial values
+    var trainID;
     var name = "";
     var destination = "";
     var time = 0;
@@ -32,11 +33,39 @@ var dataRef = firebase.database();
       console.log(childSnapshot.val().time);
       console.log(childSnapshot.val().frequency);
 
+
+      // calculate next time train arrives
+    // First Time (pushed back 1 year to make sure it comes before current time)
+    var firstTimeConverted = moment(time, "hh:mm").subtract(1, "years");
+    console.log(firstTimeConverted);
+
+    var trainFreq = childSnapshot.val().frequency
+    var currentTime = moment(currentTime).format("hh:mm");
+    console.log("CURRENT TIME: " + currentTime);
+    $("current-time").html("CURRENT TIME: " + currentTime);
+    //time difference = current time - time of first train
+    var timeDiff = moment().diff(firstTimeConverted, "minutes");
+    console.log("DIFFERENCE IN TIME: " +timeDiff);
+    //timeDiff % frequency = minutesAgo
+    var minutesAgo = timeDiff % trainFreq;
+    console.log("LAST TRAIN CAME" + " " + minutesAgo + " " + "MINUTES AGO");
+    //minutesLeft = frequency - minutesAgo
+    var minutesLeft = trainFreq - minutesAgo;
+    console.log("MINUTES TILL TRAIN: " +minutesLeft);
+    //currentTime + minutesLeft = time of next train
+    var nextTrain = moment().add(minutesLeft, "minutes");
+    console.log(nextTrain);
+    //format new time
+    var nextTrainTime = moment(nextTrain).format("hh:mm");
+    console.log("ARRIVAL TIME: " + nextTrainTime);
+
+
       // full list of items to the well
       $("#table-body").append("<tr class='table-row'><td class='table-name'> " + childSnapshot.val().name +
         " </td><td class='table-desination'> " + childSnapshot.val().destination +
-        " </td><td class='table-time'> " + childSnapshot.val().time +
-        " </td><td class='table-frequency'> " + childSnapshot.val().frequency + " </td></tr>");
+        " </td><td class='table-frequency'> " + childSnapshot.val().frequency + " </td><td class='next-train'> " + nextTrainTime +
+        " </td><td class='minutes-away'> " + minutesLeft +
+        " </td></tr>");
 
     // handle the errors
     }, function(errorObject) {
