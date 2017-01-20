@@ -1,3 +1,5 @@
+$(document).ready(function() {
+
 var dataRef = firebase.database();
     // initial values
     var trainID;
@@ -5,6 +7,23 @@ var dataRef = firebase.database();
     var destination = "";
     var time = 0;
     var frequency = "";
+    var currentTime = moment(currentTime).format("hh:mm");
+    var datetime;
+    var date;
+
+    // display current time
+
+  
+    var update = function(){
+      datetime = $('#current-time');
+      date = moment(new Date());
+      datetime.html('<h3>' + date.format('dddd, MMMM Do YYYY, h:mm:ss a' + '</h3>'));
+      };
+
+    update();
+
+    setInterval(update, 1000);
+
 
     // capture button click
     $("#add-train").on("click", function(event) {
@@ -40,9 +59,8 @@ var dataRef = firebase.database();
     console.log(firstTimeConverted);
 
     var trainFreq = childSnapshot.val().frequency
-    var currentTime = moment(currentTime).format("hh:mm");
     console.log("CURRENT TIME: " + currentTime);
-    $("current-time").html("CURRENT TIME: " + currentTime);
+    
     //time difference = current time - time of first train
     var timeDiff = moment().diff(firstTimeConverted, "minutes");
     console.log("DIFFERENCE IN TIME: " +timeDiff);
@@ -72,11 +90,4 @@ var dataRef = firebase.database();
       console.log("Errors handled: " + errorObject.code);
     });
 
-    // runs on page load and when a child is added
-    dataRef.ref().orderByChild("dateAdded").limitToLast(1).on("child_added", function(data) {
-      // change the HTML to reflect
-      $("#name-display").html(data.val().name);
-      $("#destination-display").html(data.val().destination);
-      $("#time-display").html(data.val().time);
-      $("#frequency-display").html(data.val().frequency);
-    });
+});
