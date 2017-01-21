@@ -2,28 +2,92 @@ $(document).ready(function() {
 
 var dataRef = firebase.database();
     // initial values
-    var trainID;
     var name = "";
     var destination = "";
     var time = 0;
     var frequency = "";
     var currentTime = moment(currentTime).format("hh:mm");
-    var datetime;
+    var firstTimeConverted;
+    var clock;
     var date;
+    var trainName;
+    var trainDes;
+    var trainFreq;
+    var nextTrainTime;
+    var minutesLeft;
+    var trainNames = [];
+    var trainDests = [];
+    var trainTimes = [];
+    var trainFreqs = [];
+    
 
     // display current time
-
-  
     var update = function(){
-      datetime = $('#current-time');
-      date = moment(new Date());
-      datetime.html('<h3>' + date.format('dddd, MMMM Do YYYY, h:mm:ss a' + '</h3>'));
+      clock = $('#current-time');
+      date = moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a');
+      clock.html('<h3>' + date + '</h3>');
+      // isolates seconds
+      var indCol = date.indexOf(':');
+      var seconds = (date.substring(indCol + 4, date.length - 3));
+
+      // update table for each new minute
+      if (seconds == '00'){
+        updateTable();
+      };
       };
 
     update();
 
     setInterval(update, 1000);
 
+     
+    
+
+    // calculate time when next train arrives
+     function calcTime() {
+        //time difference = current time - time of first train
+        var timeDiff = moment().diff(firstTimeConverted, "minutes");
+        console.log("DIFFERENCE IN TIME: " +timeDiff);
+        //timeDiff % frequency = minutesAgo
+        var minutesAgo = timeDiff % trainFreq;
+        console.log("LAST TRAIN CAME" + " " + minutesAgo + " " + "MINUTES AGO");
+        //minutesLeft = frequency - minutesAgo
+        minutesLeft = trainFreq - minutesAgo;
+        console.log("MINUTES TILL TRAIN: " +minutesLeft);
+        //currentTime + minutesLeft = time of next train
+        var nextTrain = moment().add(minutesLeft, "minutes");
+        console.log(nextTrain);
+        //format new time
+        nextTrainTime = moment(nextTrain).format("hh:mm");
+        console.log("ARRIVAL TIME: " + nextTrainTime);
+      };
+
+
+      // displays train info in table
+      function showTrains() {
+        $("#table-body").append("<tr class='table-row'><td class='table-name'> " + trainName +
+        " </td><td class='table-desination'> " + trainDes +
+        " </td><td class='table-frequency'> " + trainFreq + " </td><td class='next-train'> " + nextTrainTime +
+        " </td><td class='minutes-away'> " + minutesLeft +
+        " </td></tr>");
+      };
+
+      // updates table with train info
+       function updateTable() {
+        // empty tables
+        $("#table-body").empty();
+
+        // updates values in table for each object key
+        for(i=0; i< trainNames.length; i++){
+          firstTimeConverted = moment(trainTimes[i], "hh:mm").subtract(1, "years");
+          trainName = trainNames[i]
+          trainDes = trainDests[i];
+          trainFreq = trainFreqs[i];
+          calcTime();
+          showTrains();
+         
+        };
+      };
 
     // capture button click
     $("#add-train").on("click", function(event) {
@@ -52,42 +116,42 @@ var dataRef = firebase.database();
       console.log(childSnapshot.val().time);
       console.log(childSnapshot.val().frequency);
 
+      trainName = childSnapshot.val().name
+      trainDes = childSnapshot.val().destination
+      trainFreq = childSnapshot.val().frequency
+      // First Time (pushed back 1 year to make sure it comes before current time)
+      firstTimeConverted = moment(childSnapshot.val().time, "hh:mm").subtract(1, "years");
+      calcTime();
+      showTrains();
 
-      // calculate next time train arrives
-    // First Time (pushed back 1 year to make sure it comes before current time)
-    var firstTimeConverted = moment(time, "hh:mm").subtract(1, "years");
-    console.log(firstTimeConverted);
-
-    var trainFreq = childSnapshot.val().frequency
-    console.log("CURRENT TIME: " + currentTime);
-    
-    //time difference = current time - time of first train
-    var timeDiff = moment().diff(firstTimeConverted, "minutes");
-    console.log("DIFFERENCE IN TIME: " +timeDiff);
-    //timeDiff % frequency = minutesAgo
-    var minutesAgo = timeDiff % trainFreq;
-    console.log("LAST TRAIN CAME" + " " + minutesAgo + " " + "MINUTES AGO");
-    //minutesLeft = frequency - minutesAgo
-    var minutesLeft = trainFreq - minutesAgo;
-    console.log("MINUTES TILL TRAIN: " +minutesLeft);
-    //currentTime + minutesLeft = time of next train
-    var nextTrain = moment().add(minutesLeft, "minutes");
-    console.log(nextTrain);
-    //format new time
-    var nextTrainTime = moment(nextTrain).format("hh:mm");
-    console.log("ARRIVAL TIME: " + nextTrainTime);
-
-
-      // full list of items to the well
-      $("#table-body").append("<tr class='table-row'><td class='table-name'> " + childSnapshot.val().name +
-        " </td><td class='table-desination'> " + childSnapshot.val().destination +
-        " </td><td class='table-frequency'> " + childSnapshot.val().frequency + " </td><td class='next-train'> " + nextTrainTime +
-        " </td><td class='minutes-away'> " + minutesLeft +
-        " </td></tr>");
 
     // handle the errors
     }, function(errorObject) {
       console.log("Errors handled: " + errorObject.code);
     });
+
+
+    //pulls data out of firebase and updates table
+    dataRef.ref().on("value", function(snapshot) {
+      var sv = snapshot.val();
+      console.log(sv);
+      var sv_arr = Object.keys(sv);
+      console.log(sv_arr);
+
+
+      for(i=0; i< sv_arr.length; i++){
+        trainNames.push(sv[sv_arr[i]].name);
+        trainDests.push(sv[sv_arr[i]].destination);
+        trainTimes.push(sv[sv_arr[i]].time);
+        trainFreqs.push(sv[sv_arr[i]].frequency);
+        };
+      
+      updateTable();
+    // Handle the errors
+    }, function(errorObject) {
+      console.log("Errors handled: " + errorObject.code);
+    });
+
+
 
 });
