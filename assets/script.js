@@ -93,13 +93,25 @@ $(document).ready(function() {
   time = $("#time-input").val().trim();
   frequency = $("#frequency-input").val().trim();
   // code for the push
-  dataRef.ref().push({
-   name: name,
-   destination: destination,
-   time: time,
-   frequency: frequency,
-   dateAdded: firebase.database.ServerValue.TIMESTAMP
-  });
+  // wont push unless user fills out all fields
+  if(name != '' && destination != '' && time != '' && frequency != '') {
+    dataRef.ref().push({
+      name: name,
+      destination: destination,
+      time: time,
+      frequency: frequency,
+      dateAdded: firebase.database.ServerValue.TIMESTAMP
+    });
+
+    // empty input fields
+    $("#name-input").val('');
+    $("#destination-input").val('');
+    $("#time-input").val('');
+    $("#frequency-input").val('');
+
+  } else {
+    alert("Please fill out all of the fields");
+  }
 
  });
 
