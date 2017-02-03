@@ -6,6 +6,10 @@ This train schedule application incorporates Firebase to host arrival and depart
 
 [View Project](http://aes-train-schedule.herokuapp.com/)
 
+[Train Schedule](assets/images/image1.png)
+
+[Add Train](assets/images/image2.png)
+
 ##Technologies
 - HTML
 - CSS
